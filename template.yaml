@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  thumbnail_creator_node
+
+  SAM Template for thumbnail_creator_node
+
+Globals:
+  Function:
+    Timeout: 180
+
+Parameters:
+  UploadBucket:
+    Type: String
+    Default: "get-presigned-url-s3uploadbucket-1xhn7gvtj0bza"
+  ThumbnailWidth:
+    Type: String
+    Default: 150
+
+Resources:
+  ResultsBucket:
+    Type: AWS::S3::Bucket
+
+  CreateThumbnail:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: apps/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      MemorySize: 2048
+      Architectures:
+        - x86_64
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Sub "${AWS::StackName}-*"
+        - S3ReadPolicy:
+            BucketName: !Ref UploadBucket
+      Environment:
+        Variables:
+          OUTPUT_BUCKET: !Ref ResultsBucket
+          THUMB_WIDTH: !Ref ThumbnailWidth
+      Events:
+        S3EventBridgeRule:
+          Type: EventBridgeRule
+          Properties:
+            Pattern:
+              source:
+                - aws.s3
+              detail:
+                bucket:
+                  name:
+                    - !Ref UploadBucket
+
+Outputs:
+  CreateThumbnail:
+    Description: "CreateThumbnail Lambda Function ARN"
+    Value: !GetAtt CreateThumbnail.Arn
+  CreateThumbnailIamRole:
+    Description: "Implicit IAM Role created for CreateThumbnail function"
+    Value: !GetAtt CreateThumbnailRole.Arn
+  UploadBucket:
+    Description: "Upload S3 bucket"
+    Value: !Ref UploadBucket
+  ResultsBucket:
+    Description: "Results S3 bucket"
+    Value: !Ref ResultsBucket

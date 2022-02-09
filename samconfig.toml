@@ -1,0 +1,13 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "thumbnail-create"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1angxchzuq7t0"
+s3_prefix = "thumbnail-create"
+region = "ap-northeast-2"
+profile = "happy-athumb"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "UploadBucket=\"get-presigned-url-s3uploadbucket-1xhn7gvtj0bza\" ThumbnailWidth=\"150\""
+image_repositories = []
